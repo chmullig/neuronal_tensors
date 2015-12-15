@@ -21,20 +21,21 @@ G_DK_M = results['G_DK_M']  # geometric expectation
 beta_M = results['beta_M']
 print beta_M
 
-k = G_DK_M[0].shape[1]
+N = G_DK_M[0].shape[0]
+K = G_DK_M[0].shape[1]
 L = G_DK_M[2].shape[0]
 
 
 with PdfPages(inbase + '.pdf') as pdf:
-	for TYPE, DK_M in (('E', E_DK_M), ('G', G_DK_M)):
-	    for k in xrange(k):
+	for k in xrange(K):
+	    for TYPE, DK_M in (('E', E_DK_M), ('G', G_DK_M)):
 	        plt.figure(figsize=(10,10))
 	        plt.subplot(2, 2, 1)
 	        sns.barplot(x="neuron", y="value",
-	                          data=pd.DataFrame({'neuron':xrange(25), 'value':DK_M[0][:,k]}))
+	                          data=pd.DataFrame({'neuron':xrange(N), 'value':DK_M[0][:,k]}))
 	        plt.subplot(2, 2, 2)
 	        sns.barplot(x="neuron", y="value",
-	                          data=pd.DataFrame({'neuron':xrange(25), 'value':DK_M[1][:,k]}))
+	                          data=pd.DataFrame({'neuron':xrange(N), 'value':DK_M[1][:,k]}))
 	        plt.subplot(2, 2, (3,4))
 	        sns.barplot(x="time", y="value",
 	                          data=pd.DataFrame({'time':xrange(L), 'value':DK_M[2][:,k]}))
