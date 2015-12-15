@@ -11,20 +11,42 @@ spikes = np.genfromtxt(infn, dtype=int, delimiter=' ')
 
 N = spikes[:,0].max()+1
 T = spikes[:,1].max()
-L = 100
+L = 20
 
 
 spikemtx = scipy.sparse.coo_matrix((np.ones(spikes.shape[0]), (spikes[:,0], spikes[:,1]))).tocsc().todense()
-spikemtx[4,] = rn.poisson(np.roll(spikemtx[1,:], 5)) #cheat!
-spikemtx[8,] = rn.poisson(np.roll(spikemtx[15,:], 5)) #cheat!
-spikemtx = spikemtx[np.fliplr(spikemtx.mean(axis=1).ravel().argsort())][0,:,:] #sort so densest in bottom right
+print spikemtx.shape
+
+#ok, now insert fake data...
+been_from = set()
+with open('log.txt', 'w') as f:
+	permutations = rn.poisson(5)
+	f.write("Permuting: " + str(permutations) + " times\n")
+	for i in xrange(permutations):
+		swaps = (0, 0)
+		while swaps[0] == swaps[1] or swaps[1] in been_from:
+			swaps = rn.random_integers(0, high=N-1, size=2)
+		frm = swaps[0]
+		to = swaps[1]
+		been_from.add(frm)
+		displacement = rn.poisson(5)
+		f.write("%s: %s -> %s by %s\n" % (i, frm, to, displacement))
+		spikemtx[to,:] = rn.poisson(np.roll(spikemtx[frm,:], displacement))
+	swaps = (0, 0)
+	while swaps[0] == swaps[1] or swaps[1] in been_from:
+		swaps = rn.random_integers(0, high=N-1, size=2)
+	frm = swaps[0]
+	to = swaps[1]
+	displacement = rn.poisson(5)
+	overlaps = np.logical_and(spikemtx[to,:], np.roll(spikemtx[frm,:], displacement))
+	spikemtx[to, np.where(overlaps)] = np.repeat(0, np.sum(overlaps))
+	f.write("\nSUPPRESSING %s: %s -> %s by %s\n" % (i, frm, to, displacement))
 
 mat = np.zeros((N, N, L))
-for l in xrange(L):
-    print "lag", l
+for i in xrange(N):
     for j in xrange(N):
-        mat[:,j,l] = np.sum(np.logical_and(spikemtx, np.roll(np.roll(spikemtx, shift=-l, axis=1), shift=j, axis=0)), axis=1)[1,:]
-
+        for l in xrange(1, L):
+        	mat[i,j,l] = np.sum(np.logical_and(spikemtx[i,:], np.roll(spikemtx[j,:], shift=-l))) #/ np.sum(spikemtx[i,:])
 data = skt.dtensor(mat)
 
 outfn = inbase + '.dtensor.dat'
