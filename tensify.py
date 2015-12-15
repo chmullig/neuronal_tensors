@@ -49,10 +49,11 @@ if False:
 		f.write("\nSUPPRESSING %s: %s -> %s by %s\n" % (i, frm, to, displacement))
 
 mat = np.zeros((N, N, L))
-for i in xrange(N):
-    for j in xrange(N):
-        for l in xrange(1, L):
-        	mat[i,j,l] = np.sum(np.logical_and(spikemtx[i,:], np.roll(spikemtx[j,:], shift=-l))) #/ np.sum(spikemtx[i,:])
+for l in xrange(0, L):
+	rolled = np.roll(spikemtx, shift=-l)
+	for i in xrange(N):
+        mat[i,:,l] = np.sum(np.logical_and(spikemtx[i,:], rolled), axis=1)
+np.fill_diagonal(mat[:,:,0], 0) #get rid of the neuron's spike counts
 data = skt.dtensor(mat)
 
 outfn = inbase + '.dtensor.dat'
