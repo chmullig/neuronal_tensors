@@ -1,0 +1,10 @@
+*.pyc
+*.log
+*.aux
+*.nav
+*.out
+*.snm
+*.synctex.gz
+*.toc
+.DS_Store
+.ipynb_checkpoints
