@@ -16,7 +16,7 @@ if inext == 'txt':
     T = spikes[:,1].max()
     spikemtx = scipy.sparse.coo_matrix((np.ones(spikes.shape[0]), (spikes[:,0], spikes[:,1]))).tocsc().todense()
 elif inext == '.npz':
-    THRESHOLD = .05
+    THRESHOLD = .1
     dat = np.load(open(infn))
     spikemtx = (dat['n_best']>THRESHOLD).astype(int)
     N, T = spikemtx.shape
@@ -49,7 +49,7 @@ if False:
         f.write("\nSUPPRESSING %s: %s -> %s by %s\n" % (i, frm, to, displacement))
 
 mat = np.zeros((N, N, L))
-for l in xrange(0, L):
+for l in xrange(1, L):
     rolled = np.roll(spikemtx, shift=-l)
     for i in xrange(N):
         mat[i,:,l] = np.sum(np.logical_and(spikemtx[i,:], rolled), axis=1)

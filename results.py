@@ -25,10 +25,12 @@ N = G_DK_M[0].shape[0]
 K = G_DK_M[0].shape[1]
 L = G_DK_M[2].shape[0]
 
+types = (('E', E_DK_M), ('G', G_DK_M))
+types = (('G', G_DK_M),)
 
 with PdfPages(inbase + '.pdf') as pdf:
 	for k in xrange(K):
-	    for TYPE, DK_M in (('E', E_DK_M), ('G', G_DK_M)):
+	    for TYPE, DK_M in types:
 	        plt.figure(figsize=(10,10))
 	        plt.subplot(2, 2, 1)
 	        sns.barplot(x="neuron", y="value",
@@ -42,4 +44,9 @@ with PdfPages(inbase + '.pdf') as pdf:
 	        plt.title(TYPE + ' ' + str(k))
 	        pdf.savefig()
 	        plt.close()
+	plt.figure(figsize=(10,10))
+	GM = np.dot(G_DK_M[0], G_DK_M[1].T)
+	sns.heatmap(GM)
+	pdf.savefig()
+	plt.close()
 
